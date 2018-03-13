@@ -84,7 +84,7 @@ def converge(data_set, num_iter):
             w0, w1, w2 = update_weight(output, w0, w1, w2)
     if (i+1) == num_iter:
         print('After {0} iterations, no solution is found'.format(num_iter))
-    out = {'w0': W0, 'w1': W1, 'w2':W2}
+    out = {'w0': W0, 'w1': W1, 'w2': W2}
     return pd.DataFrame(out)
 
 
@@ -105,13 +105,13 @@ if __name__ == '__main__':
 
     target = get_target_function()
     dataset = get_dataset(target, NUM_DATA)
-    weights = converge(dataset, NUM_ITER)
+    weight = converge(dataset, NUM_ITER)
 
     positive = dataset[dataset['b'] > 0.0]
     negative = dataset[dataset['b'] < 0.0]
 
     f = target[0]*line + target[1]
-    g_w = weights.tail(1)
+    g_w = weight.tail(1)
     g = get_hypothesis_line(line, g_w['w0'].values[0], g_w['w1'].values[0], g_w['w2'].values[0])
     fig, ax = plt.subplots(1, 1)
     ax.set_xlim(-1.0, 1.0)
