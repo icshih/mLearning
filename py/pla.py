@@ -14,8 +14,8 @@ def get_target_function():
     return param
 
 
-def get_hypothesis_line():
-    np.arrange()
+def get_hypothesis_line(x, w0, w1, w2):
+    return -1.0*(w1/w2)*x - 1.0*(w0/w2)
 
 
 def get_data(target):
@@ -30,7 +30,6 @@ def get_data(target):
 
 
 def get_dataset(target, num_data):
-    num_data = 10
     data = np.zeros([num_data, 3])
     for i in range(num_data):
         x, y, b = get_data(target)
@@ -66,38 +65,34 @@ def update_weight(misclas, w0, w1, w2):
     return w0.values[0], w1.values[0], w2.values[0]
 
 
-def converge(data_set):
+def converge(data_set, num_iter):
+    W0 = list()
+    W1 = list()
+    W2 = list()
     w0 = 0.0
     w1 = 0.0
     w2 = 0.0
-    for i in range(1000):
+    for i in range(num_iter):
+        W0.append(w0)
+        W1.append(w1)
+        W2.append(w2)
         output = pla(data_set, w0, w1, w2)
-        print(w0, w1, w2, len(output))
-        if (len(output) == 0):
-            print('After {} iterations, all points are classfied'.format(i+1))
+        if len(output) == 0:
+            print('After {0} iterations, all points are classified'.format(i+1))
             break
         else:
             w0, w1, w2 = update_weight(output, w0, w1, w2)
-    if (i+1) == 1000:
-        print('After 1000 iterations, no solution is found')
-    return i+1
-
-
-def worker(iter):
-    t = get_target_function()
-    d = get_dataset(t, num_data)
-    num_iter = converge(d)
-    return num_iter
-
-
-def test_worker(iter):
-    return iter
+    if (i+1) == num_iter:
+        print('After {0} iterations, no solution is found'.format(num_iter))
+    out = {'w0': W0, 'w1': W1, 'w2':W2}
+    return pd.DataFrame(out)
 
 
 if __name__ == '__main__':
 
-    num_data = 10
-    num_run = 10
+    NUM_DATA = 100
+    NUM_ITER = 1000
+    NUM_RUN = 10
 
     line = np.arange(-1.0, 1.1, 0.1)
 
@@ -108,17 +103,20 @@ if __name__ == '__main__':
     # print(result[result != 1000].mean())
 
     target = get_target_function()
-    dataset = get_dataset(target, num_data)
-    postive = dataset[dataset['b'] > 0.0]
+    dataset = get_dataset(target, NUM_DATA)
+    weights = converge(dataset, NUM_ITER)
+
+    positive = dataset[dataset['b'] > 0.0]
     negative = dataset[dataset['b'] < 0.0]
 
-    converge(dataset)
-
+    f = target[0]*line + target[1]
+    g_w = weights.tail(1)
+    g = get_hypothesis_line(line, g_w['w0'].values[0], g_w['w1'].values[0], g_w['w2'].values[0])
     fig, ax = plt.subplots(1, 1)
     ax.set_xlim(-1.0, 1.0)
     ax.set_ylim(-1.0, 1.0)
-    ax.plot(postive['x'], postive['y'], 'ro')
-    ax.plot(negative['x'], negative['y'], 'go')
-    ax.plot(line, target[0]*line + target[1], 'b-')
-    ax.plot(line, 0.0*line - 0.0, 'y-')
+    ax.plot(positive['x'], positive['y'], 'bo')
+    ax.plot(negative['x'], negative['y'], 'bx')
+    ax.plot(line, f, 'b-')
+    ax.plot(line, g, 'y-')
     plt.show()
