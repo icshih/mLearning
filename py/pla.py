@@ -89,6 +89,7 @@ def converge(data_set, num_iter):
 
 
 if __name__ == '__main__':
+    """This is an implementation of the perceptron learning algorithm based on the homework of Learning From Data."""
 
     NUM_DATA = 100
     NUM_ITER = 1000
