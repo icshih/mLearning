@@ -32,9 +32,9 @@ def linear_regression(data_set):
     data_set['z'] = 1.0
     x = np.asarray(data_set[['z', 'x', 'y']])
     x_trans = x.T
-    b_ = np.asarray(data_set[['b']])
     inv = np.linalg.inv(x_trans.dot(x))
     x_pseudo_inv = inv.dot(x_trans)
+    b_ = np.asarray(data_set[['b']])
     w = x_pseudo_inv.dot(b_)
     return w
 
